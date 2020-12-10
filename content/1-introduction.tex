@@ -1,0 +1,45 @@
+%----------------------------------------------------------------------------------------
+% Introduction
+%----------------------------------------------------------------------------------------
+\setcounter{page}{1} % Sets counter of page to 1
+
+\section{Introduction} % Add a section title
+
+\quad American football lends itself to modelling in many ways and has clearly defined rules for what we will refer to as “safety” and “efficiency”. Much work has been done with making models for fútbol / soccer, especially with events like the RoboCup. But we seek to lay the groundwork for how we might approach similar problems of modelling, with American football (to which we refer to as “football”). \\
+
+\subsection{American Football in a Nutshell}
+
+\quad Football is played by two teams of eleven players on a rectangular field with goalposts at either end. The offense is the team that has possession of the ball. Their goal is to advance down the field by either running with or passing the ball. The defense is the team without possession of the ball. Their goal is to stop the advance of the offense. Football is played in increments. First, players line up along a line, facing each other. Then, the offense starts an “increment” by handing the ball to the quarterback. Action is continued until either the ball makes its way to the end of the field (or the endzone), or the player with the ball is stopped (often by being tackled to the ground). We will refer to a single increment as a “play”. \\ 
+ 
+For the offensive team, there are three core roles which we will focus on: the offensive linemen (OL), quarterback (QB), and wide receiver (WR). A typical passing play in football involves the QB throwing the ball to the WR as the OL is protecting him from the defense. The QB may need to move around in order to avoid getting hit by the defense. However, the QB must avoid moving too quickly, because if he does, he will no longer be able to accurately pass to the WR. This is the prime challenge we seek to discuss in our model! But more on that later. \\ 
+ 
+For the defensive team, there are two core roles which we will focus on: the defensive linemen (DL) and the linebacker (LB). The goal of the DL is to break past the OL in order to tackle the QB (often referred to as a “sack”) before he is able to pass the ball. The goal of the LB is to prevent the WR from catching the ball and to stop him after he catches it. One rule to note is that the LB is not allowed to touch the WR before he catches the ball, and can only indirectly influence his ability to catch the ball (block it, intercept it, etc). If he does, then it is considered a “pass interference” and counted as a violation against the defense. \\ 
+
+
+\subsection{Summary of Terms}
+
+Here are some terms that we will be using regularly throughout this proposal. Feel free to look back here if the terms or abbreviations get confusing. We also note some other specifics that may be necessary to know moving forward. Note that some of these positions are more nuanced in actual football, and that we restrict their responsibilities for the sake of a simpler analysis.
+
+\begin{enumerate}
+    \item \textbf{Player Roles}
+        \begin{enumerate}
+            \item \textbf{Quarterback (QB):} Offensive player responsible for passing the ball to WR’s
+            \item \textbf{Wide Receiver (WR):} Offensive player responsible for catching the ball 
+            \item \textbf{Offensive Linemen (OL):} Offensive player responsible for protecting the QB 
+            \item \textbf{Defensive Lineman (DL):} Defensive player responsible for attacking the QB
+            \item \textbf{Linebacker (LB):} Defensive player responsible for stopping the WR
+        \end{enumerate}
+    \item \textbf{Logistics}
+        \begin{enumerate}
+            \item \textbf{Football Field:} 160ft wide x 300ft long, or 48.8m x 91.44m. The length is often measured in yards (100 yards, where 1 yard = 3ft). 
+            \item \textbf{Play Clock:} The ball must be passed within 40 seconds
+            \item \textbf{Line of Scrimmage:} The length-wise position of the ball at the start of a play
+        \end{enumerate}
+    \item \textbf{In-Game Actions}
+        \begin{enumerate}
+            \item \textbf{Pass Interference:} An illegal move where the LB touches the WR before he catches the ball 
+            \item \textbf{Sack:} When the DL breaks past the OL and tackles the QB
+            \item \textbf{Touchdown:} The Offensive team safely delivers the ball to the “endzone”, or past the 300ft on the field.
+
+        \end{enumerate}
+\end{enumerate}
