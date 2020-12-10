@@ -4,23 +4,15 @@
 
 \section{Literature review}
 
-\blindtext % Some blind text
+\quad Modelling football is not the most pressing of issues in our society, so not much research has been explicitly done in this area. However, the nature of our project lends itself very naturally towards a combination of collision-avoidance and distributed systems problems. The ulterior goal is to successfully avoid the collision of our quarterback and another “robot” in a larger system of “robots” (or the 22 total players on the football field). With that in mind, we begin to explore trends within the area of collision avoidance and distributed hybrid systems. 
 
-\subsection{Some subsection}
-\blindtext % Some more blind text
+\subsection{A Logic for Distributed Hybrid Systems}
+\quad First we set the scene of what we mean by a distributed hybrid system (DHS). Many safety-critical systems in aviation and transportation seek to combine communication, computation, and control [5]. The ideas of computation and control can be unified under “hybrid systems”, the ideas of communication and computation can be unified under “distributed systems”, and the union of all three can then be referred to as “distributed hybrid systems.” The systems include both discrete transitions of system parts that communicate with each other and discrete / continuous dynamics from discrete control decisions and differential equations of movement. A use case that portrays this particularly well is proving the safety of a highway merge; namely, the lack of collision in a system of cars that have both discrete controls and communication with each other. There’s not a formal way to reason about these kinds of systems, so Platzer seeks to develop and prove “Quantified Dynamic Logic (QDL)” to formalize and verify the safety of these systems. This may be slightly out of scope for our project, but it does seek to help motivate ideas of how we might reason about the various players in our field as systems that must communicate with each other in order to avoid collision. The example of car collision, however, is a step up in complexity when compared to our model for football. This is because DHS is also able to consider a system whose structure is always changing; namely, a system where cars will appear and disappear as they come and go. We do not have to worry about this since we have a fixed structure of 11 players on either team, but we can definitely benefit from some of the ideas of representing a system with multiple moving parts (literally and figuratively). With a formal QDL in mind, we seek to discuss more about the nature of what a multi agent system or DHS may look like, and then discuss the nature of the collision avoidance problem. 
 
-\subsubsection{And a subsubsection}
-\blindtext % Even more blind text
+\subsection{Multi-Agent Robots as Collectives}
+\quad While a distributed hybrid system may be overly complex for our needs, it would still be useful to explore a way to quantify large groups of systems. Especially when discussing Multi-Agent Robotics, it can be helpful to think of these large groups as “collectives” [2]. Depending on the nature of the task, a collective is better than a complicated robot: “Collectives of simple robots may be simpler in terms of individual physical design than a larger, more complex robot, and thus the resulting system can be more economical, more scalable and less susceptible to overall failure” [2]. Another aspect of multi-agent systems is the way they communicate: “the tasks that they perform are typically parallelized with small amounts of coordinating communication at either the start (for truck delivery) or at the end (forestry). In these tasks each element of $\{r_i\}$ operates independently for the most part, utilizing interagent communication either initially, to parcel up the expected workload in an efficient manner, or penultimately, just before dealing with any work that was not covered during the parallel portion of the processing” [2]. This suggests that the robots are not able to directly communicate with each other while they are performing their tasks, but are able to have moments of communication before and after. This is very similar to how in football, a team will meet together to determine a strategy in which the players follow. But after that each unit within the collective may be up to their own individual task. With the intuition now for how we might represent football as a multi agent system, as well as the logic for reasoning about distributed hybrid systems, we introduce the problem we wish to solve in this context: collision avoidance.
 
-And here you have a list with dots and dashes:
-\begin{itemize}
-    \item Dots 
-    \item[-] or dashes?
-\end{itemize}
+\subsection{Aircraft Collision Avoidance}
+\quad Platzer discusses a case study of aircraft collision avoidance [6]. Namely, how two hybrid systems (airplanes) can communicate with one another and engage in a curved maneuver in order to avoid collision. One idea that we may seek to use from this case study is one of bounded overapproximation. In Section 3.7, when discussing Safe Entry Separation (AC5), they over approximate aircraft distances and speed in order to reduce the polynomial degree and verification complexity of their model. While our model is not as complicated, we borrow this same intuition of overapproximation in order to conservatively guarantee that our Quarterback will be safe. In fact, we use this idea to motivate the generalization of the Offensive and Defensive Lines as literal lines (more on this later). \\ 
 
-and an enumerated list:
-
-\begin{enumerate}
-    \item With numbers...
-    \item Which is also nice \Winkey
-\end{enumerate}
+By looking at distributed hybrid systems and their quantified dynamic logic, and how it might be used to formalize multi-agent systems, in particular one which may focus on collision avoidance and using overapproximations, we begin to piece together various literature that was very important in CPS and Robotics research and use football as a medium to discuss those topics.
