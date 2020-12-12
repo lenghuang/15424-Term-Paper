@@ -1,3 +1,5 @@
+\newpage
+
 %---------------------------------------------------------------------------------
 % Approach
 %---------------------------------------------------------------------------------
@@ -8,36 +10,58 @@
 
 \subsection{Simplifying the Model}
 
-\blindtext
+Len
+- brief intro paragraph
 
 \subsubsection{Hail Mary}
 
-\blindtext
+mostly copy
 
 \subsubsection{One Dimension}
 
-\blindtext
+Len
+- The plays on a football field for the haily mary play is roughly symmetric
+- If we can guarantee for what's in front of us, shouldn't be too hard to do left and right
+  as well end up having more freedom to move and maneouvar ins afe was
 
 \subsubsection{The Equivalence of Openness and Passing}
 
-\blindtext
+Len
+- We say that as soon as the WR becomes open, the QB passes it to him instantenaoulsy
+- Reflected in the ODEs (which well talk about later) 
+- THis is because not caring about if WR catches rn, just that QB can pass it in time
 
 \subsection{Realistic Preconditions}
 
-\blindtext
+Len 
+- Copy the table for the realistic speeds thing
+- Talk about diff perhpas ? 
+- Geometry of the football field
 
-\subsection{Linemen Collision}
+\subsection{The Players}
 
-\blindtext
+We will break the system down into its smaller subparts, by first examining how the Offensive and Defensive Lines work. To simplify the system, we will consider the Offensive Line and Defensive Line as their own single lines that move as a unit rather than individual players. In real football, the players might struggle to break past one another. For our model, we will simplify this by saying that the Defensive Line slowly approaches the Quarterback.
 
-\subsection{Looking to Pass}
+\subsubsection{Linemen Collision}
+In football, there is no fixed rule as to where the Offensive and Defensive Lines need to start exactly. The only constraint is that the Offensive Line starts in front of the Quarterback on one side of the Line of Scrimmage and the Defensive Line starts on the other side of the Line of Scrimmage as visible in the visual to the right. We will be viewing the football field from the perspective of the offense.
+Note that the Offensive Line’s duty is to protect the Quarterback and the Defensive Line’s goal is to tackle the quarterback before he throws the ball. Therefore the Defensive Line travels toward the quarterback, which is the negative direction on the y-axis (dyD). On the other hand, the Offensive Line travels away from the Quarterback, which means they travel in the positive direction on the y-axis (dyA). To simplify the model, we consider that both of the lines travel with a constant velocity before they collide. We visualize the velocities and directions of the two lines in the diagram to the right. 
+The Defensive Line, represented by the red line, is moving with speed vyD in the direction dyD, and the Offensive Line (blue) is moving with speed vyA in direction dyA. Note that vyD and vyA are the magnitudes of the lines' velocities, and are therefore non-negative.
+ 
+At the start of the play, the two lines will charge towards each other. However, once the two lines collide, they will move as one unit with the velocity being the sum of their initial velocities; this models a perfectly inelastic collision. The NFL Combine is an event where players compete in various athletic tests such as a 40-yard dash, vertical jump and more. We aggregate NFL Combine results for the 40-yard dash to derive an estimate of what each position's average speed might be. From these results, we see that Defensive Linemen are faster than Offensive Linemen across the National Football League; we model this by making the magnitude of the initial velocity of the Defensive Line greater than the magnitude of the velocity of the Offensive Line. Therefore, when the two lines collide, their velocities will counteract one another, effectively dampening the velocity of the Defensive line. One might think of this as two people pushing against one another, but one eventually dominating the other in terms of force, thus pushing them back.  Taking into account the force of the Offensive and Defensive lines, we see that they will travel with a velocity that has a magnitude equivalent to half of the difference between the magnitudes of the initial Defensive and Offensive Line’s velocities. If we consider that the masses of the Offensive and Defensive Lines are the same, we know that this abides with the Principle of Momentum Conservation because of the following equations. 
+Let mA and mD be the masses of the Offensive and Defensive lines respectively, where mA=mD=m. Let vyAi and dyAi be the initial velocity (magnitude) and direction of the Offensive Line, vyDi and dyDi be the initial velocity (magnitude) and direction of the Defensive Line, and vyf and dyf be the final velocity and direction of both lines together after the collision. By the conservation of momentum, we have:
 
-\blindtext
+Megha - copy from proposal 
+
+\subsubsection{Looking to Pass}
+
+Megha -  some intro paragraph for the next two subsections
+    
+TL;DR, if we set it up in man context, it will be impossible for WR to get open before either T=40 seconds or he is off the field. But in a different defensive scenario, he is able to because we can opt for a shorter pass. This is accurate to football since in a Zone defense, we may have more opportunites to find holes in the defense and pass, where as in a man defense, it is wholly reliant on the WR to move faster than the LB.
 
 \subsubsection{Zone Defense}
 
-\blindtext
+Megha (Len double check)
 
 \subsubsection{Man Defense}
 
-\blindtext
+Megha 
