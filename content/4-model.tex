@@ -8,40 +8,39 @@
 
 \subsection{Definitions}
 
-Len
+\quad Let's first begin with the definitions in our model. Based off of some of the numbers in \textbf{3.2 Realistic Magnitudes}, we upper bound the differences in speed between positional pairings. Namely, it is unlikely that a Wide Receiver is more than 2 feet per second faster than the Linebacker guarding him, and similarly for the Linemen. We alos note that the longest a play can last (how long the Quarterback can hold on to the ball) is 40 seconds. We set this to be \texttt{T} to be more in line with the models we are used to seeing. \\
+
+We then define \texttt{dy} variables for all the players on our field, symbolizing the direction their moving. Then, like how in Quantam the bouncing ball we want to make sure it doesn't fall through the ground, we want to make sure in Football that the players stay on the field. So we define the \texttt{onField} function to check if our player is on the field. Finally, as discussed in \textbf{3.1.4 The Equivalence of Openness and Passing}, depending on the strategy, we define an \texttt{isOpen} function. In a Zone Defense, our Wide Receiver is open if the Linebacker hasn't come down far enough to tackle him. In a Man Defense, our Wide Receiver is open if he runs past him (and is above). We added a \texttt{buffer} so that in the future we could use some of the ideas of over approximation [6] for extra safety. 
 
 \begin{lstlisting}
 Definitions
 
  Real Diff = 2; /* maximum difference in faceups between OL/DL or WR/LB */
  Real T = 40; /* time bound of a play, 40 seconds */
-
- /* Direction of velocity in y-direction */
+ 
  Real dyQB = -1; /* quarterback goes down */
  Real dyA = 1; /* offensive line goes up */
  Real dyD = -1; /* defensive line collides against OL (down) */
  Real dyWR = 1; /* wide receiver goes up */
  /* Real dyLB = 1; /* line backer follows wide receiver (up) Strat Bad */
  Real dyLB = -1; /* line backer follows wide receiver (down) Strat Good */
-
- /* Helper Functions */
+ 
  Bool onField(Real y) <-> 0 <= y & y <= 300; /* Player is on the field */
- /* Bool isOpen(Real yWR, Real yLB, Real buffer) <-> yLB + buffer < yWR; /* WR ran past LB */
- Bool isOpen(Real yWR, Real yLB, Real buffer) <-> yWR + buffer < yLB; /* WR not yet tackled by LB */
-
+ /* Bool isOpen(Real yWR, Real yLB, Real buffer) <-> yLB + buffer < yWR; /* WR past LB */
+ Bool isOpen(Real yWR, Real yLB, Real buffer) <-> yWR + buffer < yLB; /* LB not at WR */
+ 
 End.
 \end{lstlisting}
 
 \subsection{Program Variables}
 
-Len
+\quad Next, our model will have many variables to keep track of. First are the three variables that add "variety" into our system. We want to say that on average, the Defensive Line is faster and stronger than the Offensive Line, and that the Wide Receiver is faster than the linebacker. In order to generalize this a bit more, we introduce \texttt{diffLine} and \texttt{diffPass} respectively as general variables. We also have a \texttt{buffer} we discussed in earlier. Next, each player has their own \texttt{y} position, as well as their own vertical velocity \texttt{vy}. Finally, we want to keep track of time so that the play does not exceed 40 seconds.
 
 \begin{lstlisting}
 ProgramVariables
 
  Real diffLine; /* Difference in the speed of offernsive and defensive line */
  Real diffPass; /* Difference in the speed of wide receiver and linebacker */
-
  Real buffer; /* y- position buffer for WR/LB */
 
  Real yQB; /* y-position of the quarterback (Angel-team) */
@@ -64,9 +63,11 @@ ProgramVariables
 End.
 \end{lstlisting}
 
-\subsection{Problem}
+\subsection{Preconditions}
 
-Len
+\quad For our particular problem, we chose to start the quarterback at the halfway point of the football field. The Quarterback tends to start a short distance behind those protecting him: the Offensive Line (\texttt{yA}). As such, we place them to start roughly 15 feet or 5 yards ahead. The opposing Defensive Line (\texttt{yD}) starts very close to \texttt{yA}, as they are facing each other along the line of scrimmage. As such, we place them 3 feet or 1 yard above. The Wide Receiver will also want to start close to the line of scrimmage, so he is placed at the position \texttt{yWR = yA}. Then, depending on the strategy, the Linebacker will start at either the line of scrimmage with \texttt{yD} (man), or somewhere in between their current position and the back of the field (zone). 
+
+After discussing the rationale for all the positions, we set the speeds and differences according to how they were discussed in our definitions and \textbf{3.2 Realistic Magnitudes}.
 
 \begin{lstlisting}
 Problem
@@ -83,6 +84,14 @@ Problem
   & vyD  = 23.72 /* Avg for DL in ft/s from combine */
   & vyWR = 26.79 /* Avg for WR in ft/s from combine */
   ) ->
+\end{lstlisting}
+
+\newpage 
+\subsection{Diamond Modality}
+
+\quad Here we describe the action of the football game. We first assign the speeds of \texttt{vyA, vyLB} according to the differences as described in the preconditions. We then start the play! Before the linemen collide and the ball is initially "hiked", we have all the players moving at their initial speeds and directions as shown in the ordinary differential equation. Our domain constraints help us ensure that we stay within the time of the play clock, as well as modelling the "pre-collision" aspect with the \texttt{yA <= yD} statement. After the linemen collide, they will "fuse" as described in \textbf{3.3.1 Linemen Collision} and their velocities will become dampened. This is why we no longer include the evolution of \texttt{yA} in our ODE. Note that the "post-collision" aspect is also correct reflected with \texttt{yA >= yD}. Note that it also makes sense to combine these two ODE's with a sequential choice operator \texttt{[;]}, since we have a very clear notion of one event happening after the other.
+
+\begin{lstlisting}
   <
     vyA  := vyD  - diffLine; /* OL's strength/velocity is always less than DL's */
     vyLB := vyWR - diffPass; /* LB's strength/velocity is always less than WR's */
@@ -90,10 +99,8 @@ Problem
 
     /* Pre-collision movement, ball getting "hiked" */
     { yQB' = dyQB*vyQB,
-      yA'  = dyA*vyA,
-      yD'  = dyD*vyD,
-      yWR' = dyWR*vyWR,
-      yLB' = dyLB*vyLB,
+      yA'  = dyA*vyA, yD'  = dyD*vyD,
+      yWR' = dyWR*vyWR, yLB' = dyLB*vyLB,
       t' = 1
       & yA <= yD /* Pre-collision */
       & t <= T /* Realism */
@@ -102,20 +109,23 @@ Problem
     /* Keep evolving; stop once WR open or realism breaks */
     { yQB' = dyQB*vyQB,
       yD'  = (dyA*vyA + dyD*vyD)/2, /* Dampened Movement */
-      yWR' = dyWR*vyWR,
-      yLB' = dyLB*vyLB,
+      yWR' = dyWR*vyWR, yLB' = dyLB*vyLB,
       t' = 1
     & yA >= yD /* Collided */
     & t <= T /* Realism */
     }
+  >
+\end{lstlisting}
 
-  >( yQB < yD /* QB unhurt */
+\subsection{Post Conditions}
+
+\quad Finally, we have our post conditions. We want to achieve two things: safety and efficiency. We can regard safety as the QB not having been tackled yet. Since the Defensive Lineman \text{yD} is the only player approaching him, we just want to check that \texttt{yQB < yD}. We then want to check that our model is efficient. It would be pointless if our Quarterback was safe and didn't pass! As such, we want to check if our Wide Receiver is open. Then, with our assertion about \textbf{3.14 The Equivalence of Openness and Passing}, we can say that our Quarterback is efficient so long as the Wide Receiver is open. We also want to check that reality holds true by checking that all players are still on the field, and that the time is still within the allowed 40 seconds.
+
+\begin{lstlisting}
+  ( yQB < yD /* QB unhurt */
    & isOpen(yWR, yLB, buffer) /* Passed (assuming pass <=> open) */
    & onField(yQB) & onField(yD)
    & onField(yWR) & onField(yLB)
    & t <= T /* Within 40 second play clock */
    )
-End.
-End.
 \end{lstlisting}
-

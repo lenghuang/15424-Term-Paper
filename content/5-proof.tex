@@ -7,18 +7,30 @@
 \section{Proof}
 
 \subsection{Diamond Modalities}
+\quad In order for the offense to have a successful play, it is not necessary for every possible run of the system to yield a winning strategy. Rather, there simply needs to exist one winning play, and the offense will ideally follow that play regardless of how the defense behaves. Therefore, a diamond modality is much more suited for the purpose of modeling a football play. It follows almost directly, that we can use differential game logic to define a winning strategy, by allowing the defense to make a few non-deterministic choices using the dual operator. Interestingly, in differential game logic, finding and proving a winning strategy for the offense is very similar to modeling the play as a diamond modality. \\
 
-Megha
-- WHy diamnod 
-- why domain constraint 
-- how this differs from box proof 
-- why our tactic was what it was etc
+While in past work we have utilized box modalities to represent safety and efficiency for all possible runs of a hybrid system, utilizing a diamond modality allows for some different modeling heuristics. In this section we will discuss how we can take advantage of the diamond modality. \\
+
+One of the subtleties of box modalities was the domain constraint of differential equations. Since box modalities are meant to show that all possible runs of a system are safe and efficient, one could not blatantly violate physics. In other words, one could not restrict the domain of an ODE simply to prove the post-condition, because in the real world, the domain is not restricted. For example, in the case of proving a bouncing ball remains within a certain height, one could not restrict the differential equation to only run while the ball’s height is safe. The model would also have to include the domain which is unsafe for the ball and instead, be able to develop the model such that the ball never travels into the unsafe domain. \\
+
+However, for the diamond modality, restricting physics through domain constraints is viable because we need to show that at least one successful run exists. Essentially, having domain constraints within a diamond modality makes maintaining that domain constraint the responsibility of the offense. We utilized this fact to move the condition that the Quarterback remains unhurt from the post-condition into the domain constraint. In the post-condition, we recognized that the Quarterback could possibly get tackled and then move into safety again, which would still be considered a winning strategy despite being blatantly incorrect. Therefore, we noted that the Quarterback must not be tackled through the entire run of the differential equation.
+
+\subsubsection{Proof Tactics}
+\quad Another difference between box and diamond modalities lies in the proof of them. In box modalities, a common proof method for loops was defining a loop invariant which remained true throughout every iteration of the loop. However, for diamond modalities, the post-condition does not have to remain true throughout the entire run. Therefore, we were able to utilize iterating through the loop until we found a successful run. \\
+
+Our other fundamental tactic for finding a proof was utilizing solvable differential equations. Due to this, we were able to use kinematic equations, and solve them to show our post-conditions were satisfied. \\
+
+While we were originally able to utilize the KeYmaera X tool for our proofs, in our third iteration of modeling, we experienced an impediment. Utilizing Mathematica 12.0.0, we were able to prove contradicting models. Let P, represent the formula in our post-condition. In one run, we proved that given a valid pre-condition, there exists a run such that P is true. Then in the other run, we proved that given the same valid pre-condition, for all runs P is not true. These contradictory statements forced us to stop modeling and start proving our models by hand. While this hindered our ability to add more complexities into our model, we are hopeful for future work in this area. 
 
 \subsection{Finding the Time}
 
-Len
-- Discuss the nature of zone vs man 
-- And how time plays into it 
-- $t_collide <= t_pass <= t_open $
+\quad One thing that we also did to further convince ourselves of the correctness of our program was to hand write some examples and proofs of our model. Many of our ODE's are solvable with a basic kinematics solution. For example, \texttt{yQB' = dyQB * vyQB} can be solvable as $yQB(t) = dyQB \cdot vyQB \cdot t + yQB_0$ for some initial position. Further elaborated given our preconditions, we can see this as a family-friendly kinematics problem: $yQB(t) = -4.6t + 150$. While solving these, we came across a few interesting observations. Note from kinematics and math we have $t = \frac{x_f - x_0}{v}$ From here, we could use the information from our preconditions to find more meaningful times. Note that according to our model, our quarterback is able to pass anytime between the Lineman Collision and the Wide Receiver becoming open. We can quantify those times in the following way:
 
-\blindtext
+\begin{align*}
+    T_\texttt{lc} = T_\texttt{lineman collision} &= \frac{\texttt{yD - yA}}{\texttt{dyD * vyD - dyA * vyA}} = \frac{\texttt{yD - yA}}{\texttt{2*vyD - diffLine}} \\
+    T_\texttt{zone} = T_\texttt{wr open zone} &= \frac{\texttt{yLB - yWR}}{\texttt{dyLB * vyLB - dWR * vyWR}} = \frac{\texttt{yLB - yWR}}{\texttt{2*vyWR - diffPass}} \\ 
+    T_\texttt{man} = T_\texttt{wr open man} &= \frac{\texttt{yWR - yLB}}{\texttt{dWR * vyWR - dyLB * vyLB}} = \frac{\texttt{yWR - yLB}}{\texttt{2*vyWR - diffPass}} \\
+\end{align*}
+Since we define the speed of \texttt{yA} and \texttt{yLB} relative to their pairings (\texttt{yD, yWR}), we can substitute their values to simplify the velocity quantities as seen above. If $T$ represents the critical point, then in a sense we can also note that $\forall t \le T_{\texttt{zone}}, \texttt{isOpen(WR,LB,buffer) <-> true}$ since the Wide Receiver is open until he gets tackled by the Linebacker in a Zone defense. We also see that $\forall t \ge T_{\texttt{man}}, \texttt{isOpen(WR,LB,buffer) <-> true}$ since the Wide Reciever is not open until he gets past the Linebacker in a Man defense. The reason we mention all this time, is that we can view the proof of our model as a simple question. Do I have time to pass? Is there a time after lineman collision that the wide receiver is open for a sufficient amount of time? While this is not how \texttt{KeymaeraX} does the proof, it helped us better understand what was going on and verify it to ourselves, that in a way, we could think of our model as the following statement: $\exists t \text{ such that } T_{\texttt{ lineman collision }} < t < T_{\texttt{open}}$. \\
+
+One aspect, however, that this handwritten logic does not cover is realism: we might find a time that we can pass, but can we ensure that the players are still on the field when this happens? Fortunately we have \texttt{KeymaeraX} to double check us on that. Regardless, thinking about this helped us better convince ourselves of the \texttt{KeymaeraX} proof tactic. 

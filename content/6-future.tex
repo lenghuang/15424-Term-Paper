@@ -8,17 +8,20 @@
 
 \subsection{Quarterback Controller}
 
-Megha 
-- Forward and backward motion 
-- maxPass and why this is important
-- The different notions of maxPass
+\quad While we faced some trouble moving onto the next iteration of our model, in our future work we plan to add more complexity to the Quarterback’s controller. This includes finishing the implementation of forward and backwards movement, so that the Quarterback can move more freely. This includes a loop which starts with a control that switches direction based on conditions that include how far the wide receiver is and how far the defensive line is. Recall that a winning strategy for the offense requires both the wide receiver and the defensive line. \\
+
+Another continuation of this model would be to define a maximum passing range for the Quarterback, because currently, the Quarterback passes as soon as the Wide Receiver is open. The average Quarterback can only throw between 70 to 80 yards, so it is not entirely realistic if the Quarterback is at yard 0 and passed to the Wide Receiver at yard 100. Our constraint on the Quarterback and Wide Receiver would be that they are within 200 feet of each other. To calculate the distance, we would simply subtract their y-coordinates. However, when we move into two dimensions, as discussed in the next section this distance would be the Euclidean distance between them. \\
+
+To implement this maximum passing range, there are two different notions. One is to allow the Quarterback to travel backwards while he is within 200 feet of the Wide Receiver. While this will allow the Quarterback to avoid getting tackled by the Defensive Line for as long as possible, it may make it harder for the offense to win in the case that he travels too far back and can never reenter a 200 foot range of the Wide Receiver. Therefore, the other notion is to allow the Quarterback to travel backwards while he is within half of the 200 foot range. That way, it is more likely that once the Wide Receiver gets open that the Quarterback will still be in the range to throw the ball. However, this constraint also makes it harder for the Quarterback to avoid getting tackled by the Defensive Line. Both notions have their pros and cons, so we would test both out. \\
 
 \subsection{Two Dimensions}
 
-Len
-- Two dimensions harder to model, but more likely to be safe 
+\quad While football is a two-dimensional game, as players move in the x and y direction, we were able to simplify the model into one dimension, the y-dimension, due to the Hail Mary play being predominantly vertical. However, it is indeed more realistic to allows players, like the Wide Receiver, Quarterback, and Linebacker to travel in the x-direction. \\
 
-\subsection{A Different Defensive Line}
+Therefore, in the future, we would start by introducing the x-direction for the Wide Receiver to enable movement around the Linebacker. Then, we would introduce the x-direction to the Linebacker’s controllers to model defending the Wide Receiver more accurately. The final step would be integrating a controller in the x-direction for the Quarterback to enable getting closer to the Wide Receiver in the x-direction, so as to remain within 200 feet of him. This last step relates back to offense’s ability to win, because the Quarterback would have a constraint on how far he could throw.
 
-Len
-- Probability or introduce some randomness
+\subsection{Different Defensive Line}
+
+\quad Currently, our Offensive and Defensive Lines' actions are modelled as a dampened line moving slowly towards the Quarterback. If we want to make this even more realistic, we would want to model the scenario that an additional linebacker or one of the linemen are able to get past the offensive line. In this scenario, we would see a sack happen, where the quarterback gets tackled before he gets a chance to pass it, or behind the line of scrimmage. One way we could model this is, assuming we modelled multiple linemen individually instead of as a "collective", is choose with some random probability one player to "break past". 
+
+Going off the idea of multiple linemen, another thing we would want to consider is modelling a curve. Generally you'll see that linemen are not an exact straight line, but rather a curve: the outside more curved than the inside. This is because they all have the common goal of tackling the quarterback and likely will take the shortest distance to accomplish that, instead of moving directly forward. However, since our model is one dimensional, a straight line sufficed for our problem.
