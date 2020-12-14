@@ -1,4 +1,4 @@
-\newpage
+\newpage 
 
 %----------------------------------------------------------------------------------------
 % Actual Keymaera model
@@ -8,13 +8,12 @@
 
 \subsection{Definitions}
 
-\quad Let's first begin with the definitions in our model. Based off of some of the numbers in \textbf{3.2 Realistic Magnitudes}, we upper bound the differences in speed between positional pairings. Namely, it is unlikely that a Wide Receiver is more than 2 feet per second faster than the Linebacker guarding him, and similarly for the Linemen. We alos note that the longest a play can last (how long the Quarterback can hold on to the ball) is 40 seconds. We set this to be \texttt{T} to be more in line with the models we are used to seeing. \\
+\quad Let's first begin with the definitions in our model. Based off of some of the numbers in \textbf{3.2 Realistic Magnitudes}, we upper bound the differences in speed between positional pairings. Namely, it is unlikely that a Wide Receiver is more than 2 feet per second faster than the Linebacker guarding him, and similarly for the Linemen. We also note that the longest a play can last (how long the Quarterback can hold on to the ball) is 40 seconds. We set this to be \texttt{T} to be more in line with the models we are used to seeing. \\
 
-We then define \texttt{dy} variables for all the players on our field, symbolizing the direction their moving. Then, like how in Quantam the bouncing ball we want to make sure it doesn't fall through the ground, we want to make sure in Football that the players stay on the field. So we define the \texttt{onField} function to check if our player is on the field. Finally, as discussed in \textbf{3.1.4 The Equivalence of Openness and Passing}, depending on the strategy, we define an \texttt{isOpen} function. In a Zone Defense, our Wide Receiver is open if the Linebacker hasn't come down far enough to tackle him. In a Man Defense, our Wide Receiver is open if he runs past him (and is above). We added a \texttt{buffer} so that in the future we could use some of the ideas of over approximation [6] for extra safety. 
+We then define \texttt{dy} variables for all the players on our field, symbolizing the direction they're moving in. Then, like how in Quantum the bouncing ball we want to make sure it doesn't fall through the ground, we want to make sure in Football that the players stay on the field. So we define the \texttt{onField} function to check if our player is on the field. Finally, as discussed in \textbf{3.1.4 The Equivalence of Openness and Passing}, depending on the strategy, we define an \texttt{isOpen} function. In a Zone Defense, our Wide Receiver is open if the Linebacker hasn't come down far enough to tackle him. In a Man Defense, our Wide Receiver is open if he runs past him (and is above). We added a \texttt{buffer} so that in the future we could use some of the ideas of over approximation [6] for extra safety. 
 
 \begin{lstlisting}
 Definitions
-
  Real Diff = 2; /* maximum difference in faceups between OL/DL or WR/LB */
  Real T = 40; /* time bound of a play, 40 seconds */
  
@@ -22,19 +21,18 @@ Definitions
  Real dyA = 1; /* offensive line goes up */
  Real dyD = -1; /* defensive line collides against OL (down) */
  Real dyWR = 1; /* wide receiver goes up */
- /* Real dyLB = 1; /* line backer follows wide receiver (up) Strat Bad */
- Real dyLB = -1; /* line backer follows wide receiver (down) Strat Good */
+ /* Real dyLB = 1; /* linebacker follows wide receiver (up) (Man) */
+ Real dyLB = -1; /* linebacker follows wide receiver (down) (Zone) */
  
  Bool onField(Real y) <-> 0 <= y & y <= 300; /* Player is on the field */
  /* Bool isOpen(Real yWR, Real yLB, Real buffer) <-> yLB + buffer < yWR; /* WR past LB */
  Bool isOpen(Real yWR, Real yLB, Real buffer) <-> yWR + buffer < yLB; /* LB not at WR */
- 
 End.
 \end{lstlisting}
 
 \subsection{Program Variables}
 
-\quad Next, our model will have many variables to keep track of. First are the three variables that add "variety" into our system. We want to say that on average, the Defensive Line is faster and stronger than the Offensive Line, and that the Wide Receiver is faster than the linebacker. In order to generalize this a bit more, we introduce \texttt{diffLine} and \texttt{diffPass} respectively as general variables. We also have a \texttt{buffer} we discussed in earlier. Next, each player has their own \texttt{y} position, as well as their own vertical velocity \texttt{vy}. Finally, we want to keep track of time so that the play does not exceed 40 seconds.
+\quad Next, our model will have many variables to keep track of. First are the three variables that add generality into our system. We want to say that on average, the Defensive Line is faster and stronger than the Offensive Line, and that the Wide Receiver is faster than the Linebacker. In order to generalize this a bit more, we introduce \texttt{diffLine} and \texttt{diffPass} respectively as general variables. We also have a \texttt{buffer}, which we discussed in earlier. Next, each player has their own \texttt{y} position, as well as their own vertical velocity \texttt{vy}. Finally, we want to keep track of time so that the play does not exceed 40 seconds.
 
 \begin{lstlisting}
 ProgramVariables
@@ -75,8 +73,8 @@ Problem
   & yA = yQB + 15 /* OL starts 5 yards above QB */
   & yD = yA + 3 /* DL starts 1 yard above OL */
   & yWR = yA /* Start at line of scrimmage with OL */
-  /*& yLB = yD /* Start at line of scrimmage with DL (Strat Bad) */
-  & yLB = (yD + 300) / 2 /* Start at safe distance (Strat Good) */
+  /*& yLB = yD /* Start at line of scrimmage with DL (Man) */
+  & yLB = (yD + 300) / 2 /* Start at safe distance (Zone) */
   & 0 < diffLine & diffLine < Diff /* offset the OL/DL */
   & 0 < diffPass & diffPass < Diff /* offset the WR/LB */
   & buffer = 0
@@ -89,7 +87,7 @@ Problem
 \newpage 
 \subsection{Diamond Modality}
 
-\quad Here we describe the action of the football game. We first assign the speeds of \texttt{vyA, vyLB} according to the differences as described in the preconditions. We then start the play! Before the linemen collide and the ball is initially "hiked", we have all the players moving at their initial speeds and directions as shown in the ordinary differential equation. Our domain constraints help us ensure that we stay within the time of the play clock, as well as modelling the "pre-collision" aspect with the \texttt{yA <= yD} statement. After the linemen collide, they will "fuse" as described in \textbf{3.3.1 Linemen Collision} and their velocities will become dampened. This is why we no longer include the evolution of \texttt{yA} in our ODE. Note that the "post-collision" aspect is also correct reflected with \texttt{yA >= yD}. Note that it also makes sense to combine these two ODE's with a sequential choice operator \texttt{[;]}, since we have a very clear notion of one event happening after the other.
+\quad Here we describe the action of the football game. We first assign the speeds of \texttt{vyA, vyLB} according to the differences as described in the preconditions. We then start the play! Before the linemen collide and the ball is initially "hiked", we have all the players moving at their initial speeds and directions as shown in the ordinary differential equation. Our domain constraints help us ensure that we stay within the time of the play clock, as well as modelling the "pre-collision" aspect with the \texttt{yA <= yD} statement. After the linemen collide, they will "fuse" as described in \textbf{3.3.1 Linemen Collision} and their velocities will become dampened. This is why we no longer include the evolution of \texttt{yA} in our ODE. Note that the "post-collision" aspect is also correctly reflected with \texttt{yA >= yD}. Note that it also makes sense to combine these two ODE's with a sequential choice operator \texttt{[;]}, since we have a very clear notion of one event happening after the other.
 
 \begin{lstlisting}
   <
@@ -129,3 +127,5 @@ Problem
    & t <= T /* Within 40 second play clock */
    )
 \end{lstlisting}
+
+We go on to discuss in the next section how we proved this model and various observations and obstacles we experienced while doing so.

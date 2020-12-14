@@ -2,8 +2,307 @@
 % Appendix
 %----------------------------------------------------------------------------------------
 \newpage % Includes a new page
-\section*{Appendix} % Stars disable section numbers
-% \appendix % Uncomment if you want to add an "automatic" appendix
-\pagenumbering{Roman} % Changes page numbering to Roman page numbers
+\section{Deliverables} % Stars disable section numbers
+% Uncomment if you want to add an "automatic" appendix
+% \pagenumbering{Roman} % Changes page numbering to Roman page numbers
 
-\blindtext % Adds some blind text
+\subsection{Proved Model for QB Avoidance of Linemen}
+
+This is one of our earlier models where we started off by just showing that the Quarterback could be safe from the Defensive Line, not considering the Wide Receivers and Linebacker.
+
+\begin{lstlisting}
+/* Exported from KeYmaera X v4.9.1 */
+
+Theorem "STAR LAB TRIAL 1"
+
+Definitions
+
+ Real Diff = 2; /* maximum difference in strength of offensive and defensive line*/
+ Real T = 40; /* time bound of a play, 40 seconds*/
+
+ Real dyA = 1; /* direction of velocity in y-direction of the offensive line*/
+ Real dyD = -1; /* direction of velocity in y-direction of the defensive line*/
+ Real dyQB = -1; /* direction of velocity in y-direction of the Quarter Back*/
+
+End.
+
+ProgramVariables
+
+ Real diff; /* Difference in the strength of offensive and defensive line*/
+
+ Real maxVel; /* maximum realistic velocity */
+
+ Real yA; /* y-position of the offensive line (Angel-team)*/
+ Real vyA; /* magnitude of velocity in y-direction of the offensive line*/
+
+ Real yD; /* y-position of the defensive line (Demon)*/
+ Real vyD; /* magnitude of velocity in y-direction of the defensive line*/
+
+ Real yQB; /* y-position of the Quarter Back (Angel-team)*/
+ Real vyQB; /* magnitude of velocity in y-direction of the Quarter Back*/
+
+ Real t; /* Running time of the play*/
+
+End.
+
+Problem
+  ( yA = 150 & yD = yA + 3 & yQB = yA - 15
+  & maxVel = 24 & vyD = maxVel /* hardcode maxVel for now */
+  & 0 < diff & diff < Diff
+  & vyQB = 9 ) ->
+  <
+    vyA := vyD - diff; /* OL's strength/velocity is always less than DL's */
+    t:= 0;
+
+    {
+      yQB' = dyQB*vyQB, yA' = dyA*vyA, yD' = dyD*vyD, t' = 1
+      & yA <= yD & t <= T
+    };
+
+    {
+      yQB' = dyQB*vyQB, yD' = (dyA*vyA + dyD*vyD)/2, t' = 1
+      & yA >= yD & t <= T
+    }
+  >( yQB < yD
+     /* (Ball Not Passed -> yQB < yD) or (Ball Passed -> Ball Caught) */
+     /* & 0 <= yA & yA <= 300 angel still on the field */
+   & 0 <= yD & yD <= 300 /* demon still on the field */
+   & 0 <= yQB & yQB <= 300 /* QB still on the field */
+   )
+End.
+
+Tactic "STAR LAB TRIAL 1: Proof"
+expandAllDefs ; unfold ; assignd(1) ; composed(1) ; solve(1) ; solve(1.0.1.1.0.1.0.1.0.1) ; auto
+End.
+
+End.
+\end{lstlisting}
+
+\newpage
+
+\subsection{Proved Model for Zone Defense}
+Here is our proved model containing both linemen collision and passing in a Zone defense. This was also discussed in \textbf{4 Model}.
+
+\begin{lstlisting}
+/* Exported from KeYmaera X v4.9.2 */
+
+Theorem "STAR LAB TRIAL 2"
+
+Definitions
+
+ Real Diff = 2; /* maximum difference in faceups between OL/DL or WR/LB */
+ Real T = 40; /* time bound of a play, 40 seconds */
+
+ /* Direction of velocity in y-direction */
+ Real dyQB = -1; /* quarterback goes down */
+ Real dyA = 1; /* offensive line goes up */
+ Real dyD = -1; /* defensive line collides against OL (down) */
+ Real dyWR = 1; /* wide receiver goes up */
+ Real dyLB = -1; /* line backer follows wide receiver (down) (Zone) */
+
+ /* Helper Functions */
+ Bool onField(Real y) <-> 0 <= y & y <= 300; /* Player is on the field */
+ /* Bool isOpen(Real yWR, Real yLB, Real buffer) <-> yLB + buffer < yWR; /* (Man) */
+ Bool isOpen(Real yWR, Real yLB, Real buffer) <-> yWR + buffer < yLB; /* (Zone) */
+
+End.
+
+ProgramVariables
+
+ Real diffLine; /* Difference in the speed of offensive and defensive line */
+ Real diffPass; /* Difference in the speed of wide receiver and linebacker */
+
+ Real buffer; /* y-position buffer for WR/LB */
+
+ Real yQB; /* y-position of the quarterback (Angel-team) */
+ Real vyQB; /* magnitude of velocity in y-direction of the quarterback */
+
+ Real yA; /* y-position of the offensive line (Angel-team) */
+ Real vyA; /* magnitude of velocity in y-direction of the offensive line */
+
+ Real yD; /* y-position of the defensive line (Demon) */
+ Real vyD; /* magnitude of velocity in y-direction of the defensive line */
+
+ Real yWR; /* y-position of the wide receiver (Angel-team) */
+ Real vyWR; /* magnitude of velocity in y-direction of the wide receiver */
+
+ Real yLB; /* y-position of the linebacker (Demon-team) */
+ Real vyLB; /* magnitude of velocity in y-direction of the linebacker */
+
+ Real t; /* Running time of the play*/
+
+End.
+
+Problem
+  ( yQB = 150 /* Quarterback starts at half way point */
+  & yA = yQB + 15 /* OL starts 5 yards above QB */
+  & yD = yA + 3 /* DL starts 1 yard above OL */
+  & yWR = yA /* Start at line of scrimmage with OL */
+  & yLB = (yD + 300) / 2 /* Start at safe distance (Zone) */
+  & 0 < diffLine & diffLine < Diff /* offset the OL/DL */
+  & 0 < diffPass & diffPass < Diff /* offset the WR/LB */
+  & buffer = 0
+  & vyQB = 4.6 /* Walking speed in ft/s */
+  & vyD  = 23.72 /* Avg for DL in ft/s from combine */
+  & vyWR = 26.79 /* Avg for WR in ft/s from combine */
+  ) ->
+  <
+    vyA  := vyD  - diffLine; /* OL's strength/velocity is always less than DL's */
+    vyLB := vyWR - diffPass; /* LB's strength/velocity is always less than WR's */
+    t:= 0;
+
+    /* Pre-collision movement, ball getting "hiked" */
+    { yQB' = dyQB*vyQB,
+      yA'  = dyA*vyA,
+      yD'  = dyD*vyD,
+      yWR' = dyWR*vyWR,
+      yLB' = dyLB*vyLB,
+      t' = 1
+      & yA <= yD /* Pre-collision */
+      & t <= T /* Realism */
+    }
+
+    /* Keep evolving; stop once WR open or realism breaks */
+    { yQB' = dyQB*vyQB,
+      yD'  = (dyA*vyA + dyD*vyD)/2, /* Dampened Movement */
+      yWR' = dyWR*vyWR,
+      yLB' = dyLB*vyLB,
+      t' = 1
+    & yA >= yD /* Collided */
+    & t <= T /* Realism */
+    }
+
+  >( yQB < yD /* QB unhurt */
+   & isOpen(yWR, yLB, buffer) /* Passed (assuming pass <=> open) */
+   & onField(yQB) & onField(yD)
+   & onField(yWR) & onField(yLB)
+   & t <= T /* Within 40 second play clock */
+   )
+End.
+
+Tactic "STAR LAB TRIAL 2: Proof"
+expandAllDefs ; unfold ; assignd(1) ; composed(1) ; solve(1.1) ; solve(1) ; QE
+End.
+
+End.
+\end{lstlisting}
+
+\newpage
+
+\subsection{QB Controller and dGL}
+
+Here is an unproved model that has many ideas we discussed in \textbf{Future Considerations}. The main additions include a nonzero buffer, game logic for the speed assignment, and a loop based QB controller.
+
+\begin{lstlisting}
+ArchiveEntry "STAR LAB TRIAL 3"
+
+Definitions
+
+ Real Diff = 2; /* maximum difference in faceups between OL/DL or WR/LB */
+ Real T = 40; /* time bound of a play, 40 seconds */
+ Real maxPass = 100; /* Passing Heuristic */
+ /* Real maxPass = 200; /* Restriction on physics */
+
+ /* Direction of velocity in y-direction */
+ Real dyA = 1; /* offensive line goes up */
+ Real dyD = -1; /* defensive line collides against OL (down) */
+ Real dyWR = 1; /* wide receiver goes up */
+ Real dyLB = 1; /* line backer follows wide receiver (up)*/
+
+ /* Helper Functions */
+ Bool onField(Real y) <-> 0 <= y & y <= 300; /* Player is on the field */
+ /* Bool isOpen(Real yWR, Real yLB, Real buffer) <-> yLB + buffer < yWR; /* (Man) */
+ Bool isOpen(Real yWR, Real yLB, Real buffer) <-> yWR + buffer < yLB; /* (Zone) */
+ Real dist(Real a, Real b) = abs(a - b); /* 1 dimension, just diff in pos*/
+
+End.
+
+ProgramVariables
+
+ Real diffLine; /* Difference in the speed of offensive and defensive line */
+ Real diffPass; /* Difference in the speed of wide receiver and linebacker */
+
+ Real buffer; /* y- position buffer for WR/LB */
+
+ Real yQB; /* y-position of the quarterback (Angel-team) */
+ Real vyQB; /* magnitude of velocity in y-direction of the quarterback */
+ Real dyQB; /* quarterback goes down */
+
+ Real yA; /* y-position of the offensive line (Angel-team) */
+ Real vyA; /* magnitude of velocity in y-direction of the offensive line */
+
+ Real yD; /* y-position of the defensive line (Demon) */
+ Real vyD; /* magnitude of velocity in y-direction of the defensive line */
+
+ Real yWR; /* y-position of the wide receiver (Angel-team) */
+ Real vyWR; /* magnitude of velocity in y-direction of the wide receiver */
+
+ Real yLB; /* y-position of the linebacker (Demon-team) */
+ Real vyLB; /* magnitude of velocity in y-direction of the linebacker */
+
+ Real t; /* Running time of the play*/
+
+End.
+
+Problem
+  ( 0 <= yQB & yQB <= 150 /* Quarterback is in the back half of the field */
+  & yA = yQB + 15 /* OL starts 5 yards above QB */
+  & yD = yA + 3 /* DL starts 1 yard above OL */
+  & yWR = yA /* Start at line of scrimmage with OL */
+  & yLB = yD /* Start at line of scrimmage with DL (Man) */
+  /* yLB = (yD + 300) / 2/* Start back (Zone) */
+  & 0 < diffLine & diffLine < Diff /* offset the OL/DL */
+  & 0 < diffPass & diffPass < Diff /* offset the WR/LB */
+  & vyQB = 9 /* Walking speed in ft/s */
+  & vyD  = 15.18 /* Avg for DL in ft/s from combine */
+  & vyWR = 13.44 /* Avg for WR in ft/s from combine */
+  ) ->
+  <
+    {
+      vyA := *; /* Demon chooses vyA speed to approach QB quicker */
+      ?(0 < vyD - vyA & vyD - vyA < diffLine); /* ensure realistic velocity */
+      vyLB := *; /* Demon chooses vyLB to best defend against WR */
+      ?(0 < vyWR - vyLB & vyWR - vyLB < diffPass); /* ensure realistic velocity */
+    }^@
+
+    t:= 0;
+
+    /* Pre-collision movement, ball getting "hiked" */
+    { yQB' = dyQB*vyQB,
+      yA'  = dyA*vyA,
+      yD'  = dyD*vyD,
+      yWR' = dyWR*vyWR,
+      yLB' = dyLB*vyLB,
+      t' = 1
+      & yA <= yD /* Pre-collision */
+      & t <= T /* Realism */
+    };
+
+    {
+      /* If within maxPass, move backwards. Else, move forward */
+      ?(dist(yQB, yWR) <= maxPass); dyQB := -1; ++ dyQB := 1;
+
+      /* Keep evolving; stop once WR open or realism breaks */
+      { yQB' = dyQB*vyQB,
+        yD'  = (dyA*vyA + dyD*vyD)/2, /* Dampened Movement */
+        yWR' = dyWR*vyWR,
+        yLB' = dyLB*vyLB,
+        t' = 1
+      & yA >= yD /* Collided */
+      & !isOpen(yWR, yLB, buffer) /* WR not open */
+      & t <= 1 /* Time Triggered */
+      & yQB < yD
+      }
+    }*
+
+  >( yQB < yD /* QB unhurt */
+   & isOpen(yWR, yLB, buffer) /* Passed (assuming pass <=> open) */
+   & onField(yQB) & onField(yD)
+   & onField(yWR) & onField(yLB)
+   & t <= T /* Within 40 second play clock */
+   )
+End.
+End.
+
+
+\end{lstlisting}

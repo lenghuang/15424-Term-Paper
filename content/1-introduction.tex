@@ -5,21 +5,19 @@
 
 \section{Introduction} % Add a section title
 
-\quad American football lends itself to modelling in many ways and has clearly defined rules for what we will refer to as “safety” and “efficiency”. Much work has been done with making models for fútbol / soccer, especially with events like the RoboCup. But we seek to lay the groundwork for how we might approach similar problems of modelling, with American football (to which we refer to as “football”). 
-
 \subsection{American Football in a Nutshell}
 
-\quad Football is played by two teams of eleven players on a rectangular field with goalposts at either end. The offense is the team that has possession of the ball. Their goal is to advance down the field by either running with or passing the ball. The defense is the team without possession of the ball. Their goal is to stop the advance of the offense. Football is played in increments. First, players line up along a line, facing each other. Then, the offense starts an “increment” by handing the ball to the quarterback. Action is continued until either the ball makes its way to the end of the field (or the endzone), or the player with the ball is stopped (often by being tackled to the ground). We will refer to a single increment as a “play”. \\ 
+\quad Football is played by two teams of eleven players on a rectangular field with goalposts at either end. The offense is the team that has possession of the ball. Their goal is to advance down the field by either running with or passing the ball. The defense is the team without possession of the ball. Their goal is to stop the advance of the offense. Football is played in increments. First, players line up along a line, facing each other. Then, the offense starts an “increment” by handing the ball to the Quarterback. Action is continued until either the ball makes its way to the end of the field (or the endzone), or the player with the ball is stopped (often by being tackled to the ground). We will refer to a single increment as a “play”. \\ 
  
-For the offensive team, there are three core roles which we will focus on: the offensive linemen (OL), quarterback (QB), and wide receiver (WR). A typical passing play in football involves the QB throwing the ball to the WR as the OL is protecting him from the defense. The QB may need to move around in order to avoid getting hit by the defense. However, the QB must avoid moving too quickly, because if he does, he will no longer be able to accurately pass to the WR. This is the prime challenge we seek to discuss in our model! But more on that later. \\ 
+For the offensive team, there are three core roles which we will focus on: the Offensive Linemen (OL), Quarterback (QB), and Wide Receiver (WR). A typical passing play in football involves the QB throwing the ball to the WR as the OL is protecting him from the defense. The QB may need to move around in order to avoid getting hit by the defense. However, the QB must avoid moving too quickly, because if he does, he will no longer be able to accurately pass to the WR. This is the prime challenge we seek to discuss in our model! But more on that later. \\ 
  
-For the defensive team, there are two core roles which we will focus on: the defensive linemen (DL) and the linebacker (LB). The goal of the DL is to break past the OL in order to tackle the QB (often referred to as a “sack”) before he is able to pass the ball. The goal of the LB is to prevent the WR from catching the ball and to stop him after he catches it. One rule to note is that the LB is not allowed to touch the WR before he catches the ball, and can only indirectly influence his ability to catch the ball (block it, intercept it, etc). If he does, then it is considered a “pass interference” and counted as a violation against the defense. \\
+For the defensive team, there are two core roles which we will focus on: the Defensive Linemen (DL) and the Linebacker (LB). The goal of the DL is to break past the OL in order to tackle the QB (often referred to as a “sack”) before he is able to pass the ball. The goal of the LB is to prevent the WR from catching the ball and to stop him after he catches it. One rule to note is that the LB is not allowed to touch the WR before he catches the ball, and can only indirectly influence his ability to catch the ball (block it, intercept it, etc). If he does, then it is considered a “pass interference” and counted as a violation against the defense. \\
 
-The offense and defense generally have different strategies they follow. An offensive strategy might look like one where the wide receivers run in certain patterns or "routes". A defensive strategy might be one where linebackers are strategically placed to either prevent the ball from being caught or sack the quarterback. We will discuss an offensive strategy later, but mention two defensive strategies now: man and zone. \\ 
+The offense and defense generally have different strategies they follow. An offensive strategy might look like one where the Wide Receivers run in certain patterns or "routes". A defensive strategy might be one where linebackers are strategically placed to either prevent the ball from being caught or sack the Quarterback. We will discuss an offensive strategy later, but mention two defensive strategies now: man and zone. \\ 
 
-A man-to-man defense is one where each linebacker follows a wide receiver. This is so that the defense can essentially have a player "assigned" to each wide receiver, effectively denying them of all possible offensive opportunities. As such, whatever route the wide receiver runs, the linebacker will follow.\\
+A man-to-man defense, or "Man" defense, is one where each linebacker follows a Wide Receiver. This is so that the defense can essentially have a player "assigned" to each Wide Receiver, effectively denying them of all possible offensive opportunities. As such, whatever route the Wide Receiver runs, the linebacker will follow.\\
 
-A zone defense is one where the defensive players attempt to spread themselves out evenly throughout the field, or in some sort of pattern. This is so that the defense can be in a more general position to cover the offense depending on how the wide receivers run, since they do not have access to this information. 
+A zone coverage defense, or "Zone" defense, is one where the defensive players attempt to spread themselves out evenly throughout the field, or in some sort of pattern. This is so that the defense can be in a more general position to cover the offense depending on how the Wide Receivers run, since they do not have access to this information. 
 
 \subsection{Summary of Terms}
 
@@ -34,6 +32,7 @@ A zone defense is one where the defensive players attempt to spread themselves o
             \item \textbf{Defensive Lineman (DL):} Defensive player responsible for attacking the QB
             \item \textbf{Linebacker (LB):} Defensive player responsible for stopping the WR
         \end{enumerate}
+    \newpage
     \item \textbf{Logistics}
         \begin{enumerate}
             \item \textbf{Football Field:} 160ft wide x 300ft long, or 48.8m x 91.44m. The length is often measured in yards (100 yards, where 1 yard = 3ft). 
@@ -44,23 +43,23 @@ A zone defense is one where the defensive players attempt to spread themselves o
         \begin{enumerate}
             \item \textbf{Open:} A WR is open if he is in a position where he is able to catch the ball
             \item \textbf{Hike:} The ball starts with an OL that passes it to the QB. This is called a hike or snap.
-            \item \textbf{Pass Interference:} An illegal move where the LB touches the WR before he catches the ball 
+            \item \textbf{Pass Interference:} Illegal move where the LB touches the WR before he catches the ball 
             \item \textbf{Sack:} When the DL breaks past the OL and tackles the QB
             \item \textbf{Touchdown:} The Offensive team safely delivers the ball to the “endzone”, or past the 300ft on the field.
         \end{enumerate}
     \item \textbf{Strategies or Plays}
         \begin{enumerate}
-            \item \textbf{Man:} A defense where each linebacker closely follows a single wide receiver
+            \item \textbf{Man:} A defense where each linebacker closely follows a single Wide Receiver
             \item \textbf{Zone:} A defense where linebackers are evenly spread throughout the field to maximize general coverage
         \end{enumerate}
 \end{enumerate}
 
 \subsection{Football Through The Lens of Hybrid Systems}
 
-\quad Our goal with this project is to explore how we might view football from the perspective of a hybrid system. A single play in football can be viewed as a collection of subproblems woven together to solve a greater goal of furthering the position of a ball. Some of the subproblems include passing, tackling, and quarterback movement. \\
+\quad Our goal with this project is to explore how we might view football from the perspective of a hybrid system. A single play in football can be viewed as a collection of subproblems woven together to solve a greater goal of furthering the position of a ball. Some of the subproblems include passing, tackling, and Quarterback movement. \\
 
 While we will be simplify this later, passing can be similar to how we might ensure the accuracy of a catapult or missile launching system (perhaps a bit of an extreme comparison). We want to ensure that, given a target, we are able to programmatically determine a path for our projectile to travel along in order to reach the target. This can start by first viewing how we might hit a static target, then a moving target, and finally a moving target as we (the catapult) are moving. Since we are reasoning about football, we are able to restrict the realm of possibility for how our target (WR) and catapult (WR) will move. \\
 
-Tackling can also be reduced to the scenario of two robots following each other. If we consider our players as infinitesimal points, then we simply want to model their intersection as “tackling”. In our model later, we will use this idea in two scenarios: lineman collision and defining openness. For the linemen, we will use this fact to determine a new "dampened" velocity. For the wide receiver, we will call him open if he is not intersecting with the linebacker. Within the realm of football, this style of "tackling" can be likened to "two-hand touch" football. \\
+Tackling can also be reduced to the scenario of two robots following each other. If we consider our players as infinitesimal points, then we simply want to model their intersection as “tackling”. In our model later, we will use this idea in two scenarios: lineman collision and defining openness. For the linemen, we will use this fact to determine a new "dampened" velocity. For the Wide Receiver, we will call him open if he is not intersecting with the linebacker. Within the realm of football, this style of "tackling" can be likened to "two-hand touch" football. \\
 
 As mentioned earlier, football also has 11 players on either team. In a hybrid system, that means we'll have a total of 22 robots avoiding, colliding, following, communicating, and doing all sorts of things with one another. The sheer magnitude of actions to consider here and how we will reason about them can hopefully help guide the Cyberphysical Systems community in a direction of exploring larger-scale problems.
